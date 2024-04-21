@@ -362,71 +362,61 @@ function logic() {
 
 // given an input line of symbols, determine the payout
 function calc_line(s1, s2, s3) {
-
-  // perfect match
-  if (s1 == s2 && s2 == s3) {
-    return match_payout[s1];
+  // Check for a perfect match
+  if (isPerfectMatch(s1, s2, s3)) {
+    return match_payout[s1]; // Return the payout for a perfect match
   }
 
-  // special case #1: triple ups
-  if ((s1 == 1 || s1 == 2 || s1 == 3) &&
-      (s2 == 1 || s2 == 2 || s2 == 3) &&
-      (s3 == 1 || s3 == 2 || s3 == 3)) {
-    return payout_ups;
+  // Check for triple "Ups"
+  if (isTripleUps(s1, s2, s3)) {
+    return payout_ups; // Return the payout for triple "Ups"
   }
 
-  // special case #2: triple down
-  if ((s1 == 5 || s1 == 6 || s1 == 7) &&
-      (s2 == 5 || s2 == 6 || s2 == 7) &&
-      (s3 == 5 || s3 == 6 || s3 == 7)) {
-    return payout_downs;
+  // Check for triple "Downs"
+  if (isTripleDowns(s1, s2, s3)) {
+    return payout_downs; // Return the payout for triple "Downs"
   }
 
-  // special case #3: bacon goes with everything
-  if (s1 == 9) {
-    if (s2 == s3) return match_payout[s2];
-
-    // wildcard trip ups
-    if ((s2 == 1 || s2 == 2 || s2 == 3) &&
-        (s3 == 1 || s3 == 2 || s3 == 3)) return payout_ups;
-
-    // wildcard trip downs
-    if ((s2 == 5 || s2 == 6 || s2 == 7) &&
-        (s3 == 5 || s3 == 6 || s3 == 7)) return payout_downs;
-  
-  }
-  if (s2 == 9) {
-    if (s1 == s3) return match_payout[s1];
-
-    // wildcard trip ups
-    if ((s1 == 1 || s1 == 2 || s1 == 3) &&
-        (s3 == 1 || s3 == 2 || s3 == 3)) return payout_ups;
-
-    // wildcard trip downs
-    if ((s1 == 5 || s1 == 6 || s1 == 7) &&
-        (s3 == 5 || s3 == 6 || s3 == 7)) return payout_downs;
-
-  }
-  if (s3 == 9) {
-    if (s1 == s2) return match_payout[s1];
-
-    // wildcard trip ups
-    if ((s1 == 1 || s1 == 2 || s1 == 3) &&
-        (s2 == 1 || s2 == 2 || s2 == 3)) return payout_ups;
-
-    // wildcard trip downs
-    if ((s1 == 5 || s1 == 6 || s1 == 7) &&
-        (s2 == 5 || s2 == 6 || s2 == 7)) return payout_downs;
+  // Check for wildcard symbol "Bacon"
+  if (isBaconWildcard(s1, s2, s3)) {
+    return handleBaconWildcard(s1, s2, s3); // Handle wildcard "Bacon" and return the payout
   }
 
-  // check double-bacon
-  if (s2 == 9 && s3 == 9) return match_payout[s1];
-  if (s1 == 9 && s3 == 9) return match_payout[s2];
-  if (s1 == 9 && s2 == 9) return match_payout[s3];
-
-  // no reward
+  // No winning combination found, return 0
   return 0;
 }
+
+// Function to check for a perfect match
+function isPerfectMatch(s1, s2, s3) {
+  return s1 === s2 && s2 === s3;
+}
+
+// Function to check for triple "Ups"
+function isTripleUps(s1, s2, s3) {
+  return (s1 >= 1 && s1 <= 3) && (s2 >= 1 && s2 <= 3) && (s3 >= 1 && s3 <= 3);
+}
+
+// Function to check for triple "Downs"
+function isTripleDowns(s1, s2, s3) {
+  return (s1 >= 5 && s1 <= 7) && (s2 >= 5 && s2 <= 7) && (s3 >= 5 && s3 <= 7);
+}
+
+// Function to check for wildcard symbol "Bacon"
+function isBaconWildcard(s1, s2, s3) {
+  return s1 === 9 || s2 === 9 || s3 === 9;
+}
+
+// Function to handle wildcard symbol "Bacon"
+function handleBaconWildcard(s1, s2, s3) {
+  if (s1 === 9) {
+    return s2 === s3 ? match_payout[s2] : (isTripleUps(s2, s3) ? payout_ups : (isTripleDowns(s2, s3) ? payout_downs : 0));
+  } else if (s2 === 9) {
+    return s1 === s3 ? match_payout[s1] : (isTripleUps(s1, s3) ? payout_ups : (isTripleDowns(s1, s3) ? payout_downs : 0));
+  } else if (s3 === 9) {
+    return s1 === s2 ? match_payout[s1] : (isTripleUps(s1, s2) ? payout_ups : (isTripleDowns(s1, s2) ? payout_downs : 0));
+  }
+}
+
 
 // calculate the reward
 function calc_reward() {
@@ -543,5 +533,3 @@ function init() {
   };
 
 }
-
-
